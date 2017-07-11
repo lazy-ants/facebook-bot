@@ -2,6 +2,7 @@ var request = require('request');
 var slackWebApi = require('../slack/slackWebApi');
 var parameters = require('../config').parameters;
 var memoryStorage = require('../memoryStorage');
+var mainHelper = require('../helpers/mainHelper');
 
 function receivedMessage(event) {
     var senderID = event.sender.id;
@@ -26,29 +27,42 @@ function receivedMessage(event) {
         // and send back the example. Otherwise, just echo the text we received.
         switch (messageText) {
             case 'human':
-                memoryStorage.slackConnectionStatus = true;
-                sendTextMessage(senderID, 'Connected to the slack.');
-                slackWebApi.sendSlackTextMessage('User has been connected to you from fb bot.');
+                var facebookMessage = messageText;
+                var slackMessage = messageText;
+                if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.NOT_CONNECTED) {
+                    mainHelper.slack.setSlackConnectionStatus(true);
+                    facebookMessage = 'Connected to the slack.';
+                    slackMessage = 'User has been connected to you from fb bot.';
+                }
+
+                sendTextMessage(senderID, facebookMessage);
+                slackWebApi.sendSlackTextMessage(slackMessage);
 
                 break;
             case 'return':
-                var prevSlackConnectionStatus = memoryStorage.slackConnectionStatus;
-                if (memoryStorage.slackConnectionStatus) {
-                    memoryStorage.slackConnectionStatus = false;
-                    messageText = 'You has been returned back.';
+                var facebookMessage = messageText;
+                var slackMessage = undefined;
+                if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.CONNECTED) {
+                    mainHelper.slack.setSlackConnectionStatus(false);
+                    facebookMessage = 'You has been returned back.';
+                    slackMessage = 'User has been disconnected from slack.';
                 }
 
-                sendTextMessage(senderID, messageText);
-                prevSlackConnectionStatus && slackWebApi.sendSlackTextMessage('User has been disconnected from slack.');
+                sendTextMessage(senderID, facebookMessage);
+                slackMessage && slackWebApi.sendSlackTextMessage(slackMessage);
 
                 break;
             default:
                 sendTextMessage(senderID, messageText);
-                memoryStorage.slackConnectionStatus && slackWebApi.sendSlackTextMessage(messageText);
+                if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.CONNECTED) {
+                    slackWebApi.sendSlackTextMessage(messageText);
+                }
         }
     } else if (messageAttachments) {
         sendTextMessage(senderID, 'Message with attachment received');
-        memoryStorage.slackConnectionStatus && slackWebApi.sendSlackTextMessage('Message with attachment received');
+        if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.CONNECTED) {
+            slackWebApi.sendSlackTextMessage('Message with attachment received');
+        }
     }
 }
 

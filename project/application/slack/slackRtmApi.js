@@ -3,6 +3,7 @@ var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 var parameters = require('../config').parameters;
 var memoryStorage = require('../memoryStorage');
 var facebook = require('../facebook/facebook');
+var mainHelper = require('../helpers/mainHelper');
 
 var apiToken = parameters.slack.apiToken;
 
@@ -11,21 +12,25 @@ function init() {
     rtm.start();
 
     rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-        if (memoryStorage.slackConnectionStatus && isSlackUserMessage(message)) {
-            for (var i = 0; i < memoryStorage.facebookSendersIds.length; i++) {
-                var senderID = memoryStorage.facebookSendersIds[i];
+        if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.CONNECTED) {
+            if (isSlackUserMessage(message)) {
+                for (var i = 0; i < memoryStorage.facebookSendersIds.length; i++) {
+                    var senderID = memoryStorage.facebookSendersIds[i];
 
-                facebook.sendTextMessage(senderID, message.text);
+                    facebook.sendTextMessage(senderID, message.text);
+                }
             }
         }
     });
 
     rtm.on(RTM_EVENTS.USER_TYPING, function handleRtmMessage() {
-        if (memoryStorage.slackConnectionStatus && isSlackUserMessage(message)) {
-            for (var i = 0; i < memoryStorage.facebookSendersIds.length; i++) {
-                var senderID = memoryStorage.facebookSendersIds[i];
+        if (mainHelper.slack.getSlackConnectionStatus() === mainHelper.slack.slackConnectionStatuses.CONNECTED) {
+            if (isSlackUserMessage(message)) {
+                for (var i = 0; i < memoryStorage.facebookSendersIds.length; i++) {
+                    var senderID = memoryStorage.facebookSendersIds[i];
 
-                facebook.sendUserTypingOnTextMessage(senderID);
+                    facebook.sendUserTypingOnTextMessage(senderID);
+                }
             }
         }
     });
