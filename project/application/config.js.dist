@@ -1,0 +1,17 @@
+var config = {
+    parameters: {
+        slack: {
+            apiToken: 'API_TOKEN',
+            channel: 'CHANNEL_ID'
+        },
+        facebook: {
+            accessToken: 'ACCESS_TOKEN',
+            verifyToken: 'VERIFY_TOKEN'
+        },
+        server: {
+            port: 3000
+        }
+    }
+};
+
+module.exports = config;

@@ -1,0 +1,9 @@
+{
+    "dependencies": {
+        "express": "4.14.0",
+        "body-parser": "1.15.2",
+        "request": "^2.81.0",
+        "@slack/client": "^3.10.0",
+        "slack-node": "^0.1.8"
+    }
+}
