@@ -9,12 +9,10 @@ function setSlackConnectionStatus(value) {
 }
 
 module.exports = {
-    slack: {
-        slackConnectionStatuses: {
-            'CONNECTED': true,
-            'NOT_CONNECTED': false
-        },
-        getSlackConnectionStatus: getSlackConnectionStatus,
-        setSlackConnectionStatus: setSlackConnectionStatus
-    }
+    slackConnectionStatuses: {
+        'CONNECTED': true,
+        'NOT_CONNECTED': false
+    },
+    getSlackConnectionStatus: getSlackConnectionStatus,
+    setSlackConnectionStatus: setSlackConnectionStatus
 };
